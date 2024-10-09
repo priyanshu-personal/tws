@@ -1,0 +1,57 @@
+
+<title>
+  Login
+</title>
+<link rel="stylesheet" href="/static/styles/registration.css ">
+
+<style>
+    input{
+        outline: 0px;
+    }
+    .wrong{
+        border: 1px solid red;
+    }
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    body {
+        font-family: 'Josefin Sans', sans-serif;
+        background: rgba(128, 128, 128, 0.5);
+    }
+
+</style>
+<div class="gtco-container" style="margin-top: 100px;">
+
+<section>
+  <form action=login method="post">
+    {% csrf_token %}
+    <h1>ੴ The Wadhwa Store ੴ</h1>
+  <h3>Welcome Back</h3>
+  <h4 id="error" style="color:red;margin:5px">{{error1}}</h4>
+  <input type="text" placeholder="UserId" id="userid" name="userid" onkeyup="checklogin()" required>
+  <input type="password" placeholder="Enter Password" id="password" name="password" onkeyup="checklogin()" required>
+  <button class="button" id="submitbtn" type="submit" style="background:silver">Login</button>
+  </form>
+</section>
+
+</div>
+<script>
+function checklogin(){
+  userid = document.getElementById("userid").value;
+  pass = document.getElementById("password").value;
+
+  if(userid=="" || pass.length<4){
+      document.getElementById("submitbtn").disabled = true;
+      document.getElementById("submitbtn").style.background ="silver";
+  }
+  else{
+      document.getElementById("submitbtn").disabled =false;
+      document.getElementById("submitbtn").style.background ="red";
+
+  }
+}
+
+</script>
+

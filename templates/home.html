@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <title>ੴ The Wadhwa Store ੴ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: rgba(128, 128, 128, 0.5);
+      /* background: url('your-background-image.jpg') no-repeat center center fixed; */
+      background-size: cover;
+    }
+
+    .bill-container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .items-container {
+      margin-bottom: 20px;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      overflow: scroll;
+    }
+
+    .item-row input, .item-row select {
+      flex: 1;
+      margin-right: 10px;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .remove-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .add-item-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+      border-radius: 4px;
+    }
+
+    .total {
+      text-align: right;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+
+    .submit-btn {
+      background-color: white;
+      border: 2px solid #0047AB;
+      color: #0047AB;
+      padding: 10px 20px;
+      cursor: pointer;
+      width: 100%;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .logout-btn {
+      background-color: white;
+      border: 2px solid red;
+      color:red;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-right: 20px;
+    }
+    .admin-btn {
+      background-color: white;
+      border: 2px solid #0047AB;
+      color: #0047AB;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-right: 20px;
+    }
+    .report-btn {
+      background-color: white;
+      border: 2px solid green;
+      color: green;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-right: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="bill-container">
+  {% if user.is_superuser %}
+  <div style="display: flex; justify-content: space-between;">
+  <strong>Hi {{user.username}}</strong> 
+  <div style="display: flex; justify-content: end;">
+  <button class="logout-btn" onclick="logout()">Logout</button>
+  <button class="admin-btn" onclick="admin()">Admin</button>
+  <button class="report-btn" onclick="report()">Reports</button>
+</div>
+</div>
+{% else %}
+<div style="display: flex; justify-content: end;">
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+{% endif %}
+  <h1>ੴ The Wadhwa Store ੴ</h1>
+
+  <form id="billForm">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="customerName">Customer Name</label>
+      <input type="text" id="customerName" name="customerName" required>
+    </div>
+
+    <div class="form-group">
+      <label for="customerPhone">Customer Phone</label>
+      <input type="text" id="customerPhone" name="customerPhone">
+    </div>
+
+    <h3>Items</h3>
+    <div class="items-container" id="itemsContainer">
+      <div class="item-row">
+        <input type="text" list="itemList" class="item-name" placeholder="Search item" onchange="updateItemDetails(this)" required>       
+        <!-- <div>
+          <input type="text" id="item-search" class="item-name" placeholder="Search item" onchange="updateItemDetails(this)" required>
+       </div> -->
+        <input type="number" class="item-quantity" placeholder="Quantity" min="1" required>
+        <input type="number" class="item-price" placeholder="Price" min="0" required>
+        <button type="button" class="remove-btn" onclick="removeItem(this)">Remove</button>
+      </div>
+    </div>
+    
+
+    <button type="button" class="add-item-btn" onclick="addItem()">+ Add Item</button>
+
+    <div class="total">
+      Total: Rs. <span id="totalAmount">0.00</span>
+    </div>
+    <br>
+
+   
+  <!-- <button class="print-btn" onclick="printBill()">Print Bill</button> -->
+
+
+    <button type="submit" onclick="submitBill()" class="submit-btn">Save & Print</button>
+    <br>
+  </form>
+</div>
+
+
+
+<!-- Datalist for searchable items -->
+<datalist id="itemList">
+  {% for item in items %}
+  <option data-id="{{ item.id }}" data-price="{{ item.price }}" value="{{ item.category }} - {{ item.name }}">
+
+  {% endfor %}
+</datalist>
+
+<script>
+  let totalAmount = 0;
+
+  function addItem() {
+    const itemsContainer = document.getElementById('itemsContainer');
+    const itemRow = document.createElement('div');
+    itemRow.classList.add('item-row');
+    itemRow.innerHTML = `
+      <input type="text" list="itemList" class="item-name" placeholder="Search item" onchange="updateItemDetails(this)" required>      
+        <input type="number" class="item-quantity" placeholder="Quantity" min="1" required>
+        <input type="number" class="item-price" placeholder="Price" min="0" required>
+      <button type="button" class="remove-btn" onclick="removeItem(this)">Remove</button>
+    `;
+    itemsContainer.appendChild(itemRow);
+  }
+
+  function removeItem(button) {
+    const itemRow = button.parentElement;
+    const price = parseFloat(itemRow.querySelector('.item-price').value) || 0;
+    const quantity = parseInt(itemRow.querySelector('.item-quantity').value) || 0;
+    totalAmount -= price * quantity;
+    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+    itemRow.remove();
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    // Event delegation for the 'change' event on dynamically added items
+    document.getElementById('itemsContainer').addEventListener('change', function (event) {
+        if (event.target.classList.contains('item-name')) {
+            updateItemDetails(event.target);
+        }
+    });
+});
+
+function removeItem(button) {
+    const itemRow = button.closest('.item-row');
+    itemRow.remove();
+}
+
+// The updateItemDetails function (adjusted for dynamically added rows)
+function updateItemDetails(inputElement) {
+    const itemRow = inputElement.closest('.item-row');
+    const itemName = inputElement.value;
+
+    // Example: logic to fetch the item details and set price/quantity
+    // You'll replace this with your actual logic based on item selection
+    const selectedPrice = 100; // Example price from the selected item
+    const priceElement = itemRow.querySelector('.item-price');
+    const quantityElement = itemRow.querySelector('.item-quantity');
+
+    if (priceElement && quantityElement) {
+        priceElement.value = selectedPrice;
+        quantityElement.value = '1';
+        
+        // Dispatch input event to trigger any listeners
+        priceElement.dispatchEvent(new Event('input', { bubbles: true }));
+        quantityElement.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+}
+
+  function updateItemDetails(inputElement) {
+    const selectedItem = inputElement.value;
+    const datalist = document.getElementById('itemList');
+    const options = datalist.options;
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].value === selectedItem) {
+        const price = options[i].getAttribute('data-price');
+        const itemRow = inputElement.parentElement;
+        const priceElement = itemRow.querySelector('.item-price');
+        const quantityElement = itemRow.querySelector('.item-quantity');
+        priceElement.value = price;
+        quantityElement.value = '1';
+        priceElement.dispatchEvent(new Event('input', { bubbles: true }));
+        quantityElement.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+  }
+
+
+  document.getElementById('billForm').addEventListener('input', function(event) {
+    if (event.target.classList.contains('item-name') || event.target.classList.contains('item-quantity') || event.target.classList.contains('item-price')) {
+      const items = document.querySelectorAll('.item-row');
+      totalAmount = 0;
+      items.forEach(item => {
+        const price = parseFloat(item.querySelector('.item-price').value) || 0;
+        const quantity = parseInt(item.querySelector('.item-quantity').value) || 0;
+        totalAmount += price * quantity;
+      });
+      document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+    }
+  });
+
+  document.getElementById('billForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const items = [];
+    document.querySelectorAll('.item-row').forEach(item => {
+      const itemName = item.querySelector('.item-name').value;
+      const quantity = parseInt(item.querySelector('.item-quantity').value);
+      const price = parseFloat(item.querySelector('.item-price').value);
+      items.push({ item_name: itemName, item_price: price, quantity });
+    });
+
+    const billData = {
+      customer_name: document.getElementById('customerName').value,
+      customer_phone: document.getElementById('customerPhone').value,
+      items: items,
+      total_amount: totalAmount
+    };
+
+    console.log(billData);
+    // Here you would send the billData to your server via an API call
+  });
+</script>
+
+<script>
+  function printBill() {
+  const customerName = document.getElementById('customerName').value;
+  const invoiceDate = new Date().toLocaleDateString();
+  const invoiceNumber = Math.floor(Math.random() * 100000); // You can replace this with your invoice generation logic
+
+  let billContent = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; width: 600px;">
+      <div style="border-bottom: 2px solid #eaeaea; padding-bottom: 20px; margin-bottom: 20px;">
+        <h2>The Wadhwa Store</h2>
+        <p>Shahpur road, Ludhiana, Punjab 141008<br>Phone: 9646567995</p>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+          <strong>Client Name:</strong> ${customerName}<br>
+          <strong>Invoice Date:</strong> ${invoiceDate}<br>
+          <strong>Invoice No:</strong> ${invoiceNumber}
+        </div>
+        <div>
+          <strong>The Wadhwa Store</strong><br>
+          Shahpur road<br>
+          Ludhiana, 141008<br>
+        </div>
+      </div>
+      <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+        <thead style="background-color: #f5f5f5;">
+          <tr>
+            <th style="text-align: left;">DESCRIPTION</th>
+            <th style="text-align: left;">QTY</th>
+            <th style="text-align: right;">PRICE</th>
+            <th style="text-align: right;">SUBTOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  document.querySelectorAll('.item-row').forEach(row => {
+    const name = row.querySelector('.item-name').value;
+    const qty = row.querySelector('.item-quantity').value;
+    const price = row.querySelector('.item-price').value;
+    if(name && qty && price) {
+    const subtotal = (qty * price).toFixed(2);
+    billContent += `
+      <tr>
+        <td>${name}</td>        
+        <td>${qty}</td>
+        <td style="text-align: right;">Rs. ${price}</td>
+        <td style="text-align: right;">Rs. ${subtotal}</td>
+      </tr>
+    `;
+    }
+  });
+
+  const totalAmount = document.getElementById('totalAmount').textContent;
+
+  billContent += `
+      </tbody>
+    </table>
+    <div style="text-align: right; margin-top: 20px;">
+      <strong>Total Due:</strong> Rs. ${totalAmount}
+    </div>
+     <div style="text-align: left; margin-top: 20px;">
+    <ul>
+        <li>Exchange within 3 days of purchase.</li>
+      </ul>
+    </div>
+    <div style="margin-top: 50px; text-align: center;">
+      <p>Thank you for your purchase!</p>
+    </div>
+  </div>
+  `;
+
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head><title>Print Bill</title></head>
+      <body>${billContent}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+}
+
+</script>
+<script>
+function submitBill(event) {
+  // event.preventDefault(); // Prevent the form from submitting the default way
+
+  const customerName = document.getElementById('customerName').value;
+  const customerPhone = document.getElementById('customerPhone').value;
+  const totalAmount = document.getElementById('totalAmount').textContent;
+
+  if (!customerName || totalAmount==0.00) {
+    alert('Please fill in the customer name and add at least one item to the bill.');
+    return;
+  }
+
+  // Collect items data
+  let items = [];
+  document.querySelectorAll('.item-row').forEach(row => {
+    const name = row.querySelector('.item-name').value;
+    const quantity = row.querySelector('.item-quantity').value;
+    const price = row.querySelector('.item-price').value;
+    if (name && quantity && price) {
+    items.push({
+      item_name: name,
+      item_price: parseFloat(price),
+      quantity: parseInt(quantity)
+    });
+  }
+  });
+
+  // Prepare the payload
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  const billData = {
+    csrfmiddlewaretoken: csrfToken,
+    customer_name: customerName,
+    customer_phone: customerPhone,
+    items: items,
+    total: parseFloat(totalAmount)
+  };
+
+  // Send the POST request to /bill
+  fetch('/bill', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken
+    },
+    body: JSON.stringify(billData)
+  })
+  .then(response => {
+    if (response.ok) {
+      printBill();
+      window.location.reload();
+    } else {
+      alert('Error generating bill');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while generating the bill.');
+  });
+}
+function logout(){
+  window.location.href = "/logout";
+}
+function admin(){
+  window.location.href = "/admin";
+}
+function report(){
+  window.location.href = "/report";
+}
+</script>
+
+
+</body>
+</html>

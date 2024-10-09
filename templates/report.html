@@ -1,0 +1,169 @@
+<!-- report.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill and Inventory Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="date"], button {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        h2 {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow-x: auto; /* Allow overflow for the table */
+            display: block; /* Make table scrollable */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tfoot {
+            font-weight: bold;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto; /* Allow horizontal scrolling */
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 10px;
+            }
+            input[type="date"], button {
+                padding: 8px;
+            }
+            th, td {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            th, td {
+                font-size: 12px;
+            }
+            input[type="date"], button {
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bill and Inventory Report</h1>
+        <form method="POST" style="width: 100%;">
+            {% csrf_token %}
+            <input type="date" name="date_input" required>
+            <button type="submit">Get Report</button>
+        </form>
+
+        {% if total_bill_sum or total_inventory_sum %}
+        <h2>Report for {{ request.POST.date_input }}</h2>
+        
+        <h3>Bills</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bill ID</th>
+                        <th>Date</th>
+                        <th>Customer Name</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills %}
+                        <tr>
+                            <td>{{ bill.billId }}</td>
+                            <td>{{ bill.DateTime }}</td>
+                            <td>{{ bill.customer_name }}</td>
+                            <td>Rs. {{ bill.total }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Total Bill Amount:</td>
+                        <td>Rs. {{ total_bill_sum }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <h3>Inventory Sold</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inventory_sold %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>Rs. {{ item.price }}</td>
+                            <td>Rs. {{ item.total }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Total Inventory Sold Amount:</td>
+                        <td>Rs. {{ total_inventory_sum }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% elif not total_bill_sum and not total_inventory_sum %}
+                <p>No data available for the selected date.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
