@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+      /* Resetting default styles */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Body styling */
+body {
+    font-family: 'Josefin Sans', sans-serif;
+    background: rgba(128, 128, 128, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height to center vertically */
+}
+
+/* Centering the form container */
+.gtco-container {
+    background-color: white; /* White background for the form */
+    padding: 40px; /* Padding around the form */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    width: 90%; /* Responsive width */
+    max-width: 400px; /* Max width for larger screens */
+}
+
+/* Styling headings */
+h1 {
+    font-size: 24px;
+    margin-bottom: 10px; /* Space below the heading */
+    text-align: center; /* Center text */
+}
+
+h3 {
+    font-size: 18px;
+    margin-bottom: 20px; /* Space below the welcome message */
+    text-align: center; /* Center text */
+}
+
+/* Input field styling */
+input {
+    width: 100%; /* Full width for inputs */
+    padding: 10px; /* Padding inside inputs */
+    margin: 10px 0; /* Space between inputs */
+    border: 1px solid #ccc; /* Border around inputs */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+}
+
+/* Highlighting wrong inputs */
+.wrong {
+    border: 1px solid red;
+}
+
+/* Button styling */
+.button {
+    width: 100%; /* Full width for button */
+    padding: 10px;
+    background: silver; /* Button background */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+/* Change button background on hover */
+.button:hover {
+    background: #888; /* Darker on hover */
+}
+
+/* Error message styling */
+#error {
+    text-align: center; /* Center the error message */
+    margin: 5px 0; /* Space around error message */
+    font-size: 14px; /* Font size for error message */
+    color: red; /* Error message color */
+}
+
+    </style>
+</head>
+<body>
+    <div class="gtco-container">
+        <section>
+            <form action="{% url 'login' %}" method="post"> <!-- Change 'login' to your actual login URL -->
+                {% csrf_token %}
+                <h1>ੴ The Wadhwa Store ੴ</h1>
+                <h3>Welcome Back</h3>
+                <h4 id="error">{{ error1 }}</h4>
+                <input type="text" placeholder="UserId" id="userid" name="userid" onkeyup="checklogin()" required>
+                <input type="password" placeholder="Enter Password" id="password" name="password" onkeyup="checklogin()" required>
+                <button class="button" id="submitbtn" type="submit">Login</button>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        function checklogin() {
+            const userid = document.getElementById("userid").value;
+            const pass = document.getElementById("password").value;
+
+            if (userid === "" || pass.length < 4) {
+                document.getElementById("submitbtn").disabled = true;
+                document.getElementById("submitbtn").style.background = "silver";
+            } else {
+                document.getElementById("submitbtn").disabled = false;
+                document.getElementById("submitbtn").style.background = "red";
+            }
+        }
+    </script>
+</body>
+</html>
