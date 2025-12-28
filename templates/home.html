@@ -481,6 +481,15 @@
               <option value="upi">UPI</option>
             </select>
           </div>
+          <!-- Add biller dropdown -->
+          <div class="column-div">
+            <label for="biller" class="payment-mode-label">Biller</label>
+            <select id="biller" class="payment-mode-select">
+              {% for biller in billers %}
+                <option value="{{ biller.id }}" {% if biller.name == "admin" %}selected{% endif %}>{{ biller.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
 
         <div class="total">Total: Rs. <span id="totalAmount">0.00</span></div>
@@ -744,6 +753,7 @@
         const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
 
         const paymentMode = document.getElementById("payment-mode").value;
+        const billerId = document.getElementById("biller").value;
         const billData = {
           csrfmiddlewaretoken: csrfToken,
           customer_name: customerName,
@@ -752,6 +762,7 @@
           discount: parseInt(discount),
           total: parseFloat(totalAmount),
           payment_mode: paymentMode,
+          biller_id: billerId,
         };
 
         // Send the POST request to /bill

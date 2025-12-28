@@ -3,3 +3,5 @@ ayush1
 /api/migrations/
 db.sqlite3
 virtualenv
+env/
+tws/__pycache__/

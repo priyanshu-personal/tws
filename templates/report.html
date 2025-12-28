@@ -5,63 +5,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill and Inventory Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            padding: 0;
         }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #343a40;
+            color: white;
+            padding: 20px 30px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
         }
-        input[type="date"], button {
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
         }
-        button {
-            background-color: #5cb85c;
+
+        .home-button {
+            background-color: #007bff;
             color: white;
             border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
         }
-        button:hover {
-            background-color: #4cae4c;
+
+        .home-button:hover {
+            background-color: #0056b3;
         }
-        h2 {
-            margin-top: 20px;
+
+        .home-button i {
+            margin-right: 8px;
         }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-item label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        input[type="date"],
+        select {
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        button[type="submit"] {
+            padding: 12px 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.2);
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        .content-section {
+            padding: 30px;
+        }
+
+        .report-title {
+            font-size: 1.5rem;
+            color: #343a40;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #6c757d;
+            display: inline-block;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            font-size: 1.3rem;
+            color: #343a40;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: #6c757d;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            overflow-x: auto; /* Allow overflow for the table */
-            display: block; /* Make table scrollable */
+            background: white;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+
+        thead {
+            background: #e9ecef;
+            color: #343a40;
         }
+
         th {
-            background-color: #f2f2f2;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
         }
+
+        tbody tr {
+            border-bottom: 1px solid #dee2e6;
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 12px 15px;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+
         tfoot {
-            font-weight: bold;
+            background: #f8f9fa;
+            font-weight: 600;
         }
-        
-        .table-wrapper {
-            overflow-x: auto; /* Allow horizontal scrolling */
+
+        tfoot td {
+            padding: 15px;
+            color: #212529;
+            font-size: 1rem;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            color: #343a40;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .summary-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .summary-card .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #007bff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
         }
 
         /* Responsive Styles */
@@ -69,100 +266,178 @@
             body {
                 padding: 10px;
             }
-            .container {
-                padding: 10px;
+
+            .header h1 {
+                font-size: 1.5rem;
             }
-            input[type="date"], button {
-                padding: 8px;
+
+            .filter-form {
+                grid-template-columns: 1fr;
             }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
             th, td {
-                font-size: 14px;
+                padding: 10px;
+                font-size: 0.85rem;
             }
         }
 
         @media (max-width: 480px) {
-            th, td {
-                font-size: 12px;
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 10px;
             }
-            input[type="date"], button {
-                padding: 5px;
+
+            .filter-section {
+                padding: 15px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Bill and Inventory Report</h1>
-        <form method="POST" style="width: 100%;">
-            {% csrf_token %}
-            <input type="date" name="date_input" required>
-            <button type="submit">Get Report</button>
-        </form>
-
-        {% if total_bill_sum or total_inventory_sum %}
-        <h2>Report for {{ request.POST.date_input }}</h2>
-        
-        <h3>Bills</h3>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Bill ID</th>
-                        <th>Date</th>
-                        <th>Customer Name</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for bill in bills %}
-                        <tr>
-                            <td>{{ bill.billId }}</td>
-                            <td>{{ bill.DateTime }}</td>
-                            <td>{{ bill.customer_name }}</td>
-                            <td>Rs. {{ bill.total }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3">Total Bill Amount:</td>
-                        <td>Rs. {{ total_bill_sum }}</td>
-                    </tr>
-                </tfoot>
-            </table>
+        <div class="header">
+            <h1>📊 Bill and Inventory Report</h1>
+            <a href="/" class="home-button"><i class="fas fa-home"></i> Home</a>
         </div>
 
-        <h3>Inventory Sold</h3>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in inventory_sold %}
-                        <tr>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>Rs. {{ item.price }}</td>
-                            <td>Rs. {{ item.total }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3">Total Inventory Sold Amount:</td>
-                        <td>Rs. {{ total_inventory_sum }}</td>
-                    </tr>
-                </tfoot>
-            </table>
+        <div class="filter-section">
+            <form method="POST" class="filter-form">
+                {% csrf_token %}
+                <div class="filter-item">
+                    <label for="date_input">📅 Date</label>
+                    <input type="date" name="date_input" id="date_input" value="{{ selected_date }}" required>
+                </div>
+                <div class="filter-item">
+                    <label for="payment_mode">💳 Payment Mode</label>
+                    <select name="payment_mode" id="payment_mode">
+                        <option value="">All</option>
+                        <option value="cash" {% if selected_payment_mode == 'cash' %}selected{% endif %}>Cash</option>
+                        <option value="card" {% if selected_payment_mode == 'card' %}selected{% endif %}>Card</option>
+                        <option value="upi" {% if selected_payment_mode == 'upi' %}selected{% endif %}>UPI</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="biller">👤 Biller</label>
+                    <select name="biller" id="biller">
+                        <option value="">All</option>
+                        {% for biller in billers %}
+                            <option value="{{ biller.id }}" {% if selected_biller|default:"" == biller.id|stringformat:"s" %}selected{% endif %}>{{ biller.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <button type="submit">🔍 Get Report</button>
+                </div>
+            </form>
         </div>
-        {% elif not total_bill_sum and not total_inventory_sum %}
-                <p>No data available for the selected date.</p>
+
+        {% if total_bill_sum or total_inventory_sum or bills %}
+        <div class="content-section">
+            <h2 class="report-title">Report for {{ selected_date }}</h2>
+
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>Total Bill Amount</h3>
+                    <div class="amount">Rs. {{ total_bill_sum|floatformat:2 }}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Inventory Sold</h3>
+                    <div class="amount">Rs. {{ total_inventory_sum|floatformat:2 }}</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-header">Bills</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bill ID</th>
+                                <th>Date</th>
+                                <th>Customer Name</th>
+                                <th>Payment Mode</th>
+                                <th>Biller</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bill in bills %}
+                                <tr>
+                                    <td><strong>#{{ bill.billId }}</strong></td>
+                                    <td>{{ bill.DateTime }}</td>
+                                    <td>{{ bill.customer_name }}</td>
+                                    <td>
+                                        <span style="padding: 4px 8px; border-radius: 4px; background: #e7f3ff; color: #0066cc; font-size: 0.85rem;">
+                                            {% if bill.mode_of_payment %}{{ bill.get_mode_of_payment_display }}{% else %}Cash{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ bill.biller.name|default:"admin" }}</td>
+                                    <td><strong>Rs. {{ bill.total|floatformat:2 }}</strong></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <p>No bills found for the selected filters</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-header">Inventory Sold</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventory_sold %}
+                                <tr>
+                                    <td><strong>{{ item.name }}</strong></td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>Rs. {{ item.price|floatformat:2 }}</td>
+                                    <td><strong>Rs. {{ item.total|floatformat:2 }}</strong></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="empty-state">
+                                        <p>No inventory sold for the selected filters</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% elif request.method == 'POST' %}
+        <div class="content-section">
+            <div class="empty-state">
+                <p>No data available for the selected filters.</p>
+            </div>
+        </div>
         {% endif %}
     </div>
 </body>
