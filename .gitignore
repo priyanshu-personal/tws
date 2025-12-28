@@ -1,7 +1,16 @@
-ayush1
-/api/__pycache__
-/api/migrations/
-db.sqlite3
-virtualenv
+# Virtual environments
+virtualenv/
 env/
+venv/
+api/migrations/
 tws/__pycache__/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+*.sqlite3
+.env
