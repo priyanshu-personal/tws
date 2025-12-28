@@ -18,7 +18,12 @@ def get_indian_time():
     return timezone.now().astimezone(indian_timezone)
 
 class Category(models.Model):
+    ACCOUNT_CHOICES = [
+        ('Alok', 'Alok'),
+        ('Shubham', 'Shubham'),
+    ]
     name = models.CharField(null=False, max_length=100)
+    account = models.CharField(max_length=10, choices=ACCOUNT_CHOICES, default='Alok')
     def __str__(self):
         return self.name
 

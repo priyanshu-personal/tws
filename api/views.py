@@ -39,9 +39,11 @@ def home(request):
 def report_view(request):
     total_bill_sum = 0
     total_inventory_sum = 0
+    total_inventory_quantity = 0 # Initialize total_inventory_quantity
     bills = []
     inventory_sold = []
     billers = Biller.objects.all()
+    account_summary = {}
 
     if request.method == 'POST':
         date_input = request.POST.get('date_input')
@@ -80,35 +82,55 @@ def report_view(request):
                     item_name = item.get('item_name', '')
                     quantity = item.get('quantity', 0)
                     price = item.get('item_price', 0)
+                    inventory_key = item_name + str(price)
+                    Category_name = item_name.split('-')[0].strip() # Strip whitespace
+                    print(Category_name,"Category_name")
+                    try:
+                        category = Category.objects.get(name=Category_name)
+                        account = category.account
+                    except Category.DoesNotExist:
+                        # Fallback to a default account or handle as an error
+                        print(f"Warning: Category '{Category_name}' not found for item '{item_name}'. Assigning to 'Alok'.")
+                        account = 'Alok' # Default account
+
+                    if account not in account_summary:
+                        account_summary[account] = {'total': 0, 'quantity': 0} # Initialize as dict
+                    account_summary[account]['total'] += price * quantity
+                    account_summary[account]['quantity'] += quantity
                     
                     if item_name:
-                        if item_name in inventory_dict:
-                            inventory_dict[item_name]['quantity'] += quantity
-                            inventory_dict[item_name]['total'] += price * quantity
+                        if inventory_key in inventory_dict:
+                            inventory_dict[inventory_key]['quantity'] += quantity
+                            inventory_dict[inventory_key]['total'] += price * quantity
                         else:
-                            inventory_dict[item_name] = {
-                                'name': item_name,
+                            inventory_dict[inventory_key] = {
+                                'name': inventory_key,
                                 'quantity': quantity,
                                 'price': price,
                                 'total': price * quantity
                             }
+                        inventory_dict[inventory_key]['account'] = account
+
         
         # Convert dict to list for template
         inventory_sold = list(inventory_dict.values())
         total_inventory_sum = sum(item['total'] for item in inventory_sold)
+        total_inventory_quantity = sum(item['quantity'] for item in inventory_sold)
 
         for bill in bills:
             bill.DateTime = bill.DateTime.strftime("%Y-%m-%d")
-
+    print("OREEEE",account_summary,"account_summary")
     context = {
         'total_bill_sum': total_bill_sum,
         'total_inventory_sum': total_inventory_sum,
+        'total_inventory_quantity': total_inventory_quantity,
         'bills': bills,
         'inventory_sold': inventory_sold,
         'billers': billers,
         'selected_payment_mode': request.POST.get('payment_mode', '') if request.method == 'POST' else '',
         'selected_biller': request.POST.get('biller', '') if request.method == 'POST' else '',
         'selected_date': request.POST.get('date_input', '') if request.method == 'POST' else '',
+        'account_summary': account_summary,
     }
 
     return render(request, 'report.html', context)

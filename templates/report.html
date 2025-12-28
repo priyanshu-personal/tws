@@ -358,6 +358,40 @@
                     <h3>Total Inventory Sold</h3>
                     <div class="amount">Rs. {{ total_inventory_sum|floatformat:2 }}</div>
                 </div>
+                <div class="summary-card">
+                    <h3>Total Quantity</h3>
+                    <div class="amount">{{ total_inventory_quantity }}</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-header">Account Summary</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Total Sales</th>
+                                <th>Total Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account_name, details in account_summary.items %}
+                                <tr>
+                                    <td><strong>{{ account_name }}</strong></td>
+                                    <td>Rs. {{ details.total|floatformat:2 }}</td>
+                                    <td>{{ details.quantity }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="empty-state">
+                                        <p>No account summary found for the selected filters</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="section">

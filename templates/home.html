@@ -492,7 +492,10 @@
           </div>
         </div>
 
-        <div class="total">Total: Rs. <span id="totalAmount">0.00</span></div>
+        <div class="total" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div class="total">Total Quantity: <span id="totalQuantity">0</span></div>
+            <div class="total">Total: Rs. <span id="totalAmount">0.00</span></div>
+        </div>
 
         <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Save & Print</button>
       </form>
@@ -584,7 +587,9 @@
             const itemRow = inputElement.closest(".item-row");
             const priceElement = itemRow.querySelector(".item-price");
             const quantityElement = itemRow.querySelector(".item-quantity");
-            priceElement.value = price;
+            if (price != 0) {
+              priceElement.value = price;
+            }
             quantityElement.value = "1";
             updateTotal();
           }
@@ -594,15 +599,18 @@
       function updateTotal() {
         const items = document.querySelectorAll(".item-row");
         let subtotal = 0;
+        let totalQuantity = 0; // Initialize total quantity
         items.forEach((item) => {
           const price = parseFloat(item.querySelector(".item-price").value) || 0;
           const quantity = parseInt(item.querySelector(".item-quantity").value) || 0;
           subtotal += price * quantity;
+          totalQuantity += quantity; // Add to total quantity
         });
 
         const discount = parseInt(document.getElementById("discount").value) || 0;
         totalAmount = subtotal - discount;
         document.getElementById("totalAmount").textContent = totalAmount.toFixed(2);
+        document.getElementById("totalQuantity").textContent = totalQuantity; // Update total quantity display
       }
 
       document.getElementById("billForm").addEventListener("input", function (event) {
@@ -625,6 +633,7 @@
         const customerName = document.getElementById("customerName").value;
         const invoiceDate = new Date().toLocaleDateString();
         const invoiceTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const totalQuantity = document.getElementById("totalQuantity").textContent;
 
         let receiptContent = `
 <div style="font-family: monospace; font-size: 14px;">
@@ -671,6 +680,10 @@
   <p style="display: flex; justify-content: space-between; margin: 2px 0;">
     <span>Subtotal</span>
     <span>${subtotal.toFixed(2)}</span>
+  </p>
+  <p style="display: flex; justify-content: space-between; margin: 2px 0;">
+    <span>Total Quantity</span>
+    <span>${totalQuantity}</span>
   </p>
 `;
 
