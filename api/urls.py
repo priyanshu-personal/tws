@@ -10,4 +10,5 @@ urlpatterns = [
     path("logout",views.user_logout,name="logout"),
     path("report",views.report_view,name='report'),
     path('bill',views.bill,name="category"),
+    path("previous-bills", views.previous_bills_combined, name="previous-bills"),
 ]

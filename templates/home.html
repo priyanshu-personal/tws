@@ -1,507 +1,815 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-  <title>ੴ The Wadhwa Store ੴ</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: rgba(128, 128, 128, 0.5);
-      /* background: url('your-background-image.jpg') no-repeat center center fixed; */
-      background-size: cover;
-    }
-
-    .bill-container {
-      max-width: 800px;
-      margin: 50px auto;
-      background-color: rgba(255, 255, 255, 0.9);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .items-container {
-      margin-bottom: 20px;
-    }
-
-    .item-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      overflow: scroll;
-    }
-
-    .item-row input, .item-row select {
-      flex: 1;
-      margin-right: 10px;
-      padding: 8px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .remove-btn {
-      background-color: #dc3545;
-      color: white;
-      padding: 5px 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .add-item-btn {
-      background-color: #28a745;
-      color: white;
-      padding: 10px;
-      border: none;
-      cursor: pointer;
-      display: block;
-      margin: 0 auto;
-      border-radius: 4px;
-    }
-
-    .total {
-      text-align: right;
-      font-size: 20px;
-      margin-top: 20px;
-    }
-
-    .submit-btn {
-      background-color: white;
-      border: 2px solid #0047AB;
-      color: #0047AB;
-      padding: 10px 20px;
-      cursor: pointer;
-      width: 100%;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    .logout-btn {
-      background-color: white;
-      border: 2px solid red;
-      color:red;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 16px;
-      margin-right: 20px;
-    }
-    .admin-btn {
-      background-color: white;
-      border: 2px solid #0047AB;
-      color: #0047AB;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 16px;
-      margin-right: 20px;
-    }
-    .report-btn {
-      background-color: white;
-      border: 2px solid green;
-      color: green;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 16px;
-      margin-right: 20px;
-    }
-  </style>
-</head>
-<body>
-
-<div class="bill-container">
-  {% if user.is_superuser %}
-  <div style="display: flex; justify-content: space-between;">
-  <strong>Hi {{user.username}}</strong>
-  <div style="display: flex; justify-content: end;">
-  <button class="logout-btn" onclick="logout()">Logout</button>
-  <button class="admin-btn" onclick="admin()">Admin</button>
-  <button class="report-btn" onclick="report()">Reports</button>
-</div>
-</div>
-{% else %}
-<div style="display: flex; justify-content: end;">
-  <button class="logout-btn" onclick="logout()">Logout</button>
-</div>
-{% endif %}
-  <h1>ੴ The Wadhwa Store ੴ</h1>
-
-  <form id="billForm">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="customerName">Customer Name</label>
-      <input type="text" id="customerName" name="customerName" required>
-    </div>
-
-    <div class="form-group" style="display: none;">
-      <label for="customerPhone">Customer Phone</label>
-      <input type="text" id="customerPhone" name="customerPhone">
-    </div>
-
-    <h3>Items</h3>
-    <div class="items-container" id="itemsContainer">
-      <div class="item-row">
-        <input type="text" list="itemList" class="item-name" placeholder="Search item" onchange="updateItemDetails(this)" required>
-        <!-- <div>
-          <input type="text" id="item-search" class="item-name" placeholder="Search item" onchange="updateItemDetails(this)" required>
-       </div> -->
-        <input type="number" class="item-quantity" placeholder="Quantity" min="1" required>
-        <input type="number" class="item-price" placeholder="Price" min="0" required>
-        <button type="button" class="remove-btn" onclick="removeItem(this)">Remove</button>
-      </div>
-    </div>
-
-
-    <button type="button" class="add-item-btn" onclick="addItem()">+ Add Item</button>
-    <div style="width: 100%;text-align: end;">
-    <input type="number" style="height: 20px;" id="discount"  class="discount" placeholder="Discount" min="0">
-  </div>
-    <div class="total">
-      Total: Rs. <span id="totalAmount">0.00</span>
-    </div>
-    <br>
-
-
-  <!-- <button class="print-btn" onclick="printBill()">Print Bill</button> -->
-
-
-    <button type="submit" onclick="submitBill()" class="submit-btn">Save & Print</button>
-    <br>
-  </form>
-</div>
-
-
-
-<!-- Datalist for searchable items -->
-<datalist id="itemList">
-  {% for item in items %}
-  <option data-id="{{ item.id }}" data-price="{{ item.price }}" value="{{ item.category }} - {{ item.name }}">
-
-  {% endfor %}
-</datalist>
-
-<script>
-  let totalAmount = 0;
-
-  function addItem() {
-    const itemsContainer = document.getElementById('itemsContainer');
-    const itemRow = document.createElement('div');
-    itemRow.classList.add('item-row');
-    itemRow.innerHTML = `
-      <input type="text" list="itemList" class="item-name" placeholder="Search item" onchange="updateItemDetails(this)" required>
-        <input type="number" class="item-quantity" placeholder="Quantity" min="1" required>
-        <input type="number" class="item-price" placeholder="Price" min="0" required>
-      <button type="button" class="remove-btn" onclick="removeItem(this)">Remove</button>
-    `;
-    itemsContainer.appendChild(itemRow);
-  }
-
-  function removeItem(button) {
-    const itemRow = button.parentElement;
-    const price = parseFloat(itemRow.querySelector('.item-price').value) || 0;
-    const quantity = parseInt(itemRow.querySelector('.item-quantity').value) || 0;
-    totalAmount -= price * quantity;
-    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
-    itemRow.remove();
-  }
-  document.addEventListener('DOMContentLoaded', function () {
-    // Event delegation for the 'change' event on dynamically added items
-    document.getElementById('itemsContainer').addEventListener('change', function (event) {
-        if (event.target.classList.contains('item-name')) {
-            updateItemDetails(event.target);
-        }
-    });
-});
-
-function removeItem(button) {
-    const itemRow = button.closest('.item-row');
-    itemRow.remove();
-}
-
-// The updateItemDetails function (adjusted for dynamically added rows)
-function updateItemDetails(inputElement) {
-    const itemRow = inputElement.closest('.item-row');
-    const itemName = inputElement.value;
-
-    // Example: logic to fetch the item details and set price/quantity
-    // You'll replace this with your actual logic based on item selection
-    const selectedPrice = 100; // Example price from the selected item
-    const priceElement = itemRow.querySelector('.item-price');
-    const quantityElement = itemRow.querySelector('.item-quantity');
-
-    if (priceElement && quantityElement) {
-        priceElement.value = selectedPrice;
-        quantityElement.value = '1';
-
-        // Dispatch input event to trigger any listeners
-        priceElement.dispatchEvent(new Event('input', { bubbles: true }));
-        quantityElement.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-}
-
-  function updateItemDetails(inputElement) {
-    const selectedItem = inputElement.value;
-    const datalist = document.getElementById('itemList');
-    const options = datalist.options;
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].value === selectedItem) {
-        const price = options[i].getAttribute('data-price');
-        const itemRow = inputElement.parentElement;
-        const priceElement = itemRow.querySelector('.item-price');
-        const quantityElement = itemRow.querySelector('.item-quantity');
-        priceElement.value = price;
-        quantityElement.value = '1';
-        priceElement.dispatchEvent(new Event('input', { bubbles: true }));
-        quantityElement.dispatchEvent(new Event('input', { bubbles: true }));
+    <style>
+      :root {
+        --primary-color: #0047ab;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --purple-color: #6f42c1;
+        --light-bg: #f8f9fa;
+        --dark-text: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
-    }
-  }
 
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  document.getElementById('billForm').addEventListener('input', function(event) {
-    if (event.target.classList.contains('item-name') || event.target.classList.contains('item-quantity') || event.target.classList.contains('item-price') || event.target.classList.contains('discount')) {
-      const items = document.querySelectorAll('.item-row');
-      subtotal = 0;
-      items.forEach(item => {
-        const price = parseFloat(item.querySelector('.item-price').value) || 0;
-        const quantity = parseInt(item.querySelector('.item-quantity').value) || 0;
-        const discount = parseInt(document.getElementById('discount').value) || 0;
-        subtotal += price * quantity;
-        totalAmount = subtotal - discount;
-      });
-      document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
-    }
-  });
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f0f2f5;
+        color: var(--dark-text);
+        line-height: 1.6;
+      }
 
-  document.getElementById('billForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const items = [];
-    document.querySelectorAll('.item-row').forEach(item => {
-      const itemName = item.querySelector('.item-name').value;
-      const quantity = parseInt(item.querySelector('.item-quantity').value);
-      const price = parseFloat(item.querySelector('.item-price').value);
-      items.push({ item_name: itemName, item_price: price, quantity });
-    });
+      .bill-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 15px;
+        box-shadow: var(--box-shadow);
+      }
 
-    const billData = {
-      customer_name: document.getElementById('customerName').value,
-      customer_phone: document.getElementById('customerPhone').value,
-      items: items,
-      discount: parseInt(document.getElementById('discount').value),
-      total_amount: totalAmount
-    };
-  });
-</script>
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
 
-<script>
-  function printBill() {
-  const customerName = document.getElementById('customerName').value;
-  const invoiceDate = new Date().toLocaleDateString();
-  const invoiceTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const customer_name = document.getElementById('customerName').value;
+      .header-section {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+      }
 
-  let receiptContent = `
-    <div style="font-family: monospace; font-size: 14px;">
-      <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-        <h2 style="margin: 0;">CASH RECEIPT</h2>
-        <p style="margin: 5px 0;">0095</p>
+      .user-greeting {
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .btn {
+        background-color: white;
+        border: 2px solid;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: var(--border-radius);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+
+      .btn i {
+        margin-right: 5px;
+      }
+
+      .btn-logout {
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+      }
+
+      .btn-admin {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      .btn-report {
+        border-color: var(--success-color);
+        color: var(--success-color);
+      }
+
+      .btn-previous {
+        border-color: var(--purple-color);
+        color: var(--purple-color);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: var(--dark-text);
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 71, 171, 0.2);
+      }
+
+      .section-title {
+        margin: 20px 0 10px;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+      }
+
+      .items-container {
+        margin-bottom: 20px;
+      }
+
+      .item-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: var(--light-bg);
+        border-radius: var(--border-radius);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .item-row-header {
+        display: none;
+      }
+
+      .item-field {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .item-field label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 3px;
+        color: #666;
+      }
+
+      .item-row input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .item-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 5px;
+      }
+
+      .remove-btn {
+        background-color: var(--danger-color);
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      .remove-btn i {
+        margin-right: 5px;
+      }
+
+      .add-item-btn {
+        background-color: var(--success-color);
+        color: white;
+        padding: 10px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        width: 100%;
+        max-width: 200px;
+      }
+
+      .add-item-btn i {
+        margin-right: 5px;
+      }
+
+      .discount-section {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 15px;
+      }
+      .column-div {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 10px;
+      }
+
+      .discount-label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .discount-input {
+        width: 120px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .payment-mode-label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .payment-mode-select {
+        width: 120px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .total {
+        text-align: right;
+        font-size: 1.2rem;
+        margin: 20px 0;
+        padding: 10px;
+        background-color: var(--light-bg);
+        border-radius: var(--border-radius);
+        font-weight: bold;
+      }
+
+      .submit-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        border-radius: var(--border-radius);
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        transition: background-color 0.3s ease;
+      }
+
+      .submit-btn:hover {
+        background-color: #003d91;
+      }
+
+      /* Tablet styles */
+      @media (min-width: 768px) {
+        .bill-container {
+          max-width: 90%;
+          margin: 40px auto;
+          padding: 20px;
+          border-radius: var(--border-radius);
+        }
+
+        .header-section {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .button-group {
+          margin-bottom: 0;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .item-row {
+          grid-template-columns: 2fr 1fr 1fr auto;
+          gap: 15px;
+          align-items: center;
+        }
+
+        .item-row-header {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr auto;
+          gap: 15px;
+          font-weight: bold;
+          margin-bottom: 10px;
+          color: var(--dark-text);
+        }
+
+        .item-field {
+          flex-direction: row;
+          align-items: center;
+        }
+
+        .item-field label {
+          display: none;
+        }
+
+        .item-actions {
+          margin-top: 0;
+        }
+      }
+
+      /* Desktop styles */
+      @media (min-width: 992px) {
+        .bill-container {
+          max-width: 800px;
+          padding: 30px;
+        }
+
+        .btn {
+          padding: 10px 15px;
+          font-size: 16px;
+        }
+      }
+
+      .quantity-control {
+        display: flex;
+        align-items: center;
+      }
+
+      .quantity-control button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: var(--border-radius);
+        margin: 0 5px;
+      }
+
+      .quantity-control button:hover {
+        background-color: #003d91;
+      }
+
+      .quantity-control input {
+        width: 50px;
+        text-align: center;
+      }
+      .decrement,
+      .increment {
+        width: 30px;
+      }
+    </style>
+    <title>ੴ The Wadhwa Store ੴ</title>
+  </head>
+  <body>
+    <div class="bill-container">
+      <div class="header-section">
+        {% if user.is_superuser %}
+        <div class="user-greeting">Hi {{user.username}}</div>
+        <div class="button-group">
+          <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+          <button class="btn btn-admin" onclick="admin()"><i class="fas fa-cog"></i> Admin</button>
+          <button class="btn btn-report" onclick="report()"><i class="fas fa-chart-bar"></i> Reports</button>
+          <button class="btn btn-previous" onclick="previousBills()">
+            <i class="fas fa-history"></i> Previous Bills
+          </button>
+        </div>
+        {% else %}
+        <div></div>
+        <div class="button-group">
+          <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+        {% endif %}
       </div>
-      <div style="margin-bottom: 30px;">
-        <p style="margin: 2px 0;">Date: ${invoiceDate} ${invoiceTime}</p>
-        <p style="margin: 2px 0;">${customerName}</p>
+
+      <h1>ੴ The Wadhwa Store ੴ</h1>
+
+      <form id="billForm">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="customerName">Customer Name</label>
+          <input type="text" id="customerName" name="customerName" required />
+        </div>
+
+        <div class="form-group" style="display: none">
+          <label for="customerPhone">Customer Phone</label>
+          <input type="text" id="customerPhone" name="customerPhone" />
+        </div>
+
+        <h3 class="section-title">Items</h3>
+
+        <div class="item-row-header">
+          <div>Item</div>
+          <div>Quantity</div>
+          <div>Price</div>
+          <div></div>
+        </div>
+
+        <div class="items-container" id="itemsContainer">
+          <div class="item-row">
+            <div class="item-field">
+              <label>Item</label>
+              <input
+                type="text"
+                list="itemList"
+                class="item-name"
+                placeholder="Search item"
+                onchange="updateItemDetails(this)"
+                required
+              />
+            </div>
+            <div class="item-field">
+              <label>Quantity</label>
+              <div class="quantity-control">
+                <button type="button" class="decrement">-</button>
+                <input type="number" class="item-quantity" placeholder="Quantity" min="1" value="1" required />
+                <button type="button" class="increment">+</button>
+              </div>
+            </div>
+            <div class="item-field">
+              <label>Price</label>
+              <input type="number" class="item-price" placeholder="Price" min="0" required />
+            </div>
+            <div class="item-actions">
+              <button type="button" class="remove-btn" onclick="removeItem(this)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="add-item-btn" onclick="addItem()"><i class="fas fa-plus"></i> Add Item</button>
+
+        <div class="discount-section">
+          <div class="column-div">
+            <label for="discount" class="discount-label">Discount (Rs.)</label>
+            <input type="number" id="discount" class="discount-input" placeholder="0" min="0" />
+          </div>
+          <!-- Add payment mode dropdown -->
+          <div class="column-div">
+            <label for="payment-mode" class="payment-mode-label">Mode of Payment</label>
+            <select id="payment-mode" class="payment-mode-select">
+              <option value="cash">Cash</option>
+              <option value="card">Card</option>
+              <option value="upi">UPI</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="total">Total: Rs. <span id="totalAmount">0.00</span></div>
+
+        <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Save & Print</button>
+      </form>
+    </div>
+
+    <!-- Datalist for searchable items -->
+    <datalist id="itemList">
+      {% for item in items %}
+      <option data-id="{{ item.id }}" data-price="{{ item.price }}" value="{{ item.category }} - {{ item.name }}">
+        {% endfor %}
+      </option>
+    </datalist>
+
+    <script>
+      let totalAmount = 0;
+
+      function addItem() {
+        const itemsContainer = document.getElementById("itemsContainer");
+        const itemRow = document.createElement("div");
+        itemRow.classList.add("item-row");
+        itemRow.innerHTML = `
+    <div class="item-field">
+      <label>Item</label>
+      <input type="text" list="itemList" class="item-name" placeholder="Search item" onchange="updateItemDetails(this)" required>
+    </div>
+    <div class="item-field">
+        <label>Quantity</label>
+          <div class="quantity-control">
+            <button type="button" class="decrement">-</button>
+            <input type="number" class="item-quantity" placeholder="Quantity" min="1" value="1" required />
+            <button type="button" class="increment">+</button>
+          </div>
       </div>
-      <table style="width: 100%; border-collapse: collapse;">
-        <tr style="border-bottom: 1px dashed #000;">
-          <th style="text-align: left; padding: 2px 0;">Qty</th>
-          <th style="text-align: left; padding: 2px 0;">Item</th>
-          <th style="text-align: right; padding: 2px 0;">Price</th>
-        </tr>
+    <div class="item-field">
+      <label>Price</label>
+      <input type="number" class="item-price" placeholder="Price" min="0" required>
+    </div>
+    <div class="item-actions">
+      <button type="button" class="remove-btn" onclick="removeItem(this)">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
   `;
+        itemsContainer.appendChild(itemRow);
 
-  let subtotal = 0;
-  document.querySelectorAll('.item-row').forEach(row => {
-    const name = row.querySelector('.item-name').value;
-    const qty = row.querySelector('.item-quantity').value;
-    const price = parseFloat(row.querySelector('.item-price').value);
-    if(name && qty && price) {
-      const itemTotal = qty * price;
-      subtotal += itemTotal;
-      receiptContent += `
-        <tr>
-          <td style="padding: 2px 0;">${qty}</td>
-          <td style="padding: 2px 0;">${name}</td>
-          <td style="text-align: right; padding: 2px 0;">${itemTotal.toFixed(2)}</td>
-        </tr>
-      `;
-    }
-  });
+        // Add event listeners to the newly created quantity controls
+        const quantityControl = itemRow.querySelector(".quantity-control");
+        const input = quantityControl.querySelector(".item-quantity");
+        const incrementButton = quantityControl.querySelector(".increment");
+        const decrementButton = quantityControl.querySelector(".decrement");
 
-  const discount = parseInt(document.getElementById('discount').value) || 0;
-  const total = subtotal - discount;
+        incrementButton.addEventListener("click", () => {
+          input.value = parseInt(input.value) + 1;
+          updateTotal(); // Update total when quantity changes
+        });
 
-  receiptContent += `
-  </table>
-  <div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px;">
-    <p style="display: flex; justify-content: space-between; margin: 2px 0;">
-      <span>Subtotal</span>
-      <span>${subtotal.toFixed(2)}</span>
-    </p>
+        decrementButton.addEventListener("click", () => {
+          if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+            updateTotal(); // Update total when quantity changes
+          }
+        });
+      }
+      function removeItem(button) {
+        const itemRow = button.closest(".item-row");
+        itemRow.remove();
+        updateTotal();
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Event delegation for the 'change' event on dynamically added items
+        document.getElementById("itemsContainer").addEventListener("change", function (event) {
+          if (event.target.classList.contains("item-name")) {
+            updateItemDetails(event.target);
+          }
+        });
+
+        // Initialize total calculation
+        updateTotal();
+      });
+
+      function updateItemDetails(inputElement) {
+        const selectedItem = inputElement.value;
+        const datalist = document.getElementById("itemList");
+        const options = datalist.options;
+        for (let i = 0; i < options.length; i++) {
+          if (options[i].value === selectedItem) {
+            const price = options[i].getAttribute("data-price");
+            const itemRow = inputElement.closest(".item-row");
+            const priceElement = itemRow.querySelector(".item-price");
+            const quantityElement = itemRow.querySelector(".item-quantity");
+            priceElement.value = price;
+            quantityElement.value = "1";
+            updateTotal();
+          }
+        }
+      }
+
+      function updateTotal() {
+        const items = document.querySelectorAll(".item-row");
+        let subtotal = 0;
+        items.forEach((item) => {
+          const price = parseFloat(item.querySelector(".item-price").value) || 0;
+          const quantity = parseInt(item.querySelector(".item-quantity").value) || 0;
+          subtotal += price * quantity;
+        });
+
+        const discount = parseInt(document.getElementById("discount").value) || 0;
+        totalAmount = subtotal - discount;
+        document.getElementById("totalAmount").textContent = totalAmount.toFixed(2);
+      }
+
+      document.getElementById("billForm").addEventListener("input", function (event) {
+        if (
+          event.target.classList.contains("item-name") ||
+          event.target.classList.contains("item-quantity") ||
+          event.target.classList.contains("item-price") ||
+          event.target.classList.contains("discount-input")
+        ) {
+          updateTotal();
+        }
+      });
+
+      document.getElementById("billForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitBill();
+      });
+
+      function printBill() {
+        const customerName = document.getElementById("customerName").value;
+        const invoiceDate = new Date().toLocaleDateString();
+        const invoiceTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+        let receiptContent = `
+<div style="font-family: monospace; font-size: 14px;">
+  <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+    <h2 style="margin: 0;">CASH RECEIPT</h2>
+    <p style="margin: 5px 0;">0095</p>
+  </div>
+  <div style="margin-bottom: 30px;">
+    <p style="margin: 2px 0;">Date: ${invoiceDate} ${invoiceTime}</p>
+    <p style="margin: 2px 0;">${customerName}</p>
+  </div>
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr style="border-bottom: 1px dashed #000;">
+      <th style="text-align: left; padding: 2px 0;">Qty</th>
+      <th style="text-align: left; padding: 2px 0;">Item</th>
+      <th style="text-align: right; padding: 2px 0;">Price</th>
+    </tr>
 `;
 
-if (discount > 0) {
-  receiptContent += `
-    <p style="display: flex; justify-content: space-between; margin: 2px 0;">
-      <span>Discount</span>
-      <span>-${discount.toFixed(2)}</span>
-    </p>
+        let subtotal = 0;
+        document.querySelectorAll(".item-row").forEach((row) => {
+          const name = row.querySelector(".item-name").value;
+          const qty = row.querySelector(".item-quantity").value;
+          const price = parseFloat(row.querySelector(".item-price").value);
+          if (name && qty && price) {
+            const itemTotal = qty * price;
+            subtotal += itemTotal;
+            receiptContent += `
+    <tr>
+      <td style="padding: 2px 0;">${qty}</td>
+      <td style="padding: 2px 0;">${name}</td>
+      <td style="text-align: right; padding: 2px 0;">${itemTotal.toFixed(2)}</td>
+    </tr>
   `;
-}
+          }
+        });
 
-receiptContent += `
+        const discount = parseInt(document.getElementById("discount").value) || 0;
+        const total = subtotal - discount;
+
+        receiptContent += `
+</table>
+<div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px;">
+  <p style="display: flex; justify-content: space-between; margin: 2px 0;">
+    <span>Subtotal</span>
+    <span>${subtotal.toFixed(2)}</span>
+  </p>
+`;
+
+        if (discount > 0) {
+          receiptContent += `
+  <p style="display: flex; justify-content: space-between; margin: 2px 0;">
+    <span>Discount</span>
+    <span>-${discount.toFixed(2)}</span>
+  </p>
+`;
+        }
+
+        receiptContent += `
 <div style="text-align: center; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px;">
-    <p style="display: flex; justify-content: space-between; margin: 2px 0; font-weight: bold;">
-      <span>Total</span>
-      <span>${total.toFixed(2)}</span>
-    </p>
-    </div>
+  <p style="display: flex; justify-content: space-between; margin: 2px 0; font-weight: bold;">
+    <span>Total</span>
+    <span>${total.toFixed(2)}</span>
+  </p>
   </div>
-  <div style="text-align: center; margin-top: 20px; padding-top: 10px;">
-    <p style="margin: 5px 0;">THANK YOU</p>
-    <p style="margin: 5px 0; font-size: 12px;">Exchange within 3 days of purchase</p>
-  </div>
+</div>
+<div style="text-align: center; margin-top: 20px; padding-top: 10px;">
+  <p style="margin: 5px 0;">THANK YOU</p>
+  <p style="margin: 5px 0; font-size: 12px;">Exchange within 3 days of purchase</p>
+</div>
 </div>
 `;
 
-  const printWindow = window.open('', '', 'width=300,height=600');
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Print Receipt</title>
-        <style>
-          @media print {
-            @page {
-              margin: 0;
-              width: 58mm;
-            }
-            body {
-              width: 58mm;
-            }
+        const printWindow = window.open("", "", "width=300,height=600");
+        printWindow.document.write(`
+<html>
+  <head>
+    <title>Print Receipt</title>
+    <style>
+      @media print {
+        @page {
+          margin: 10;
+          width: 58mm;
+        }
+        body {
+          width: 58mm;
+        }
+      }
+    </style>
+  </head>
+  <body>${receiptContent}</body>
+</html>
+`);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+      }
+
+      function submitBill() {
+        const customerName = document.getElementById("customerName").value;
+        const customerPhone = document.getElementById("customerPhone").value;
+        const discount = document.getElementById("discount").value;
+        const totalAmount = document.getElementById("totalAmount").textContent;
+
+        if (!customerName || totalAmount == 0.0) {
+          alert("Please fill in the customer name and add at least one item to the bill.");
+          return;
+        }
+
+        // Collect items data
+        let items = [];
+        document.querySelectorAll(".item-row").forEach((row) => {
+          const name = row.querySelector(".item-name").value;
+          const quantity = row.querySelector(".item-quantity").value;
+          const price = row.querySelector(".item-price").value;
+          if (name && quantity && price) {
+            items.push({
+              item_name: name,
+              item_price: parseFloat(price),
+              quantity: parseInt(quantity),
+            });
           }
-        </style>
-      </head>
-      <body>${receiptContent}</body>
-    </html>
-  `);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-}
+        });
 
-</script>
-<script>
-function submitBill(event) {
-  const customerName = document.getElementById('customerName').value;
-  const customerPhone = document.getElementById('customerPhone').value;
-  const discount = document.getElementById('discount').value;
-  const totalAmount = document.getElementById('totalAmount').textContent;
+        // Prepare the payload
+        const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
 
-  if (!customerName || totalAmount==0.00) {
-    alert('Please fill in the customer name and add at least one item to the bill.');
-    return;
-  }
+        const paymentMode = document.getElementById("payment-mode").value;
+        const billData = {
+          csrfmiddlewaretoken: csrfToken,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          items: items,
+          discount: parseInt(discount),
+          total: parseFloat(totalAmount),
+          payment_mode: paymentMode,
+        };
 
-  // Collect items data
-  let items = [];
-  document.querySelectorAll('.item-row').forEach(row => {
-    const name = row.querySelector('.item-name').value;
-    const quantity = row.querySelector('.item-quantity').value;
-    const price = row.querySelector('.item-price').value;
-    if (name && quantity && price) {
-    items.push({
-      item_name: name,
-      item_price: parseFloat(price),
-      quantity: parseInt(quantity)
-    });
-  }
-  });
+        // Send the POST request to /bill
+        fetch("/bill", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify(billData),
+        })
+          .then((response) => {
+            if (response.ok) {
+              printBill();
+              window.location.reload();
+            } else {
+              alert("Error generating bill");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred while generating the bill.");
+          });
+      }
 
-  // Prepare the payload
-  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      function logout() {
+        window.location.href = "/logout";
+      }
 
-  const billData = {
-    csrfmiddlewaretoken: csrfToken,
-    customer_name: customerName,
-    customer_phone: customerPhone,
-    items: items,
-    discount: parseInt(discount),
-    total: parseFloat(totalAmount)
-  };
+      function admin() {
+        window.location.href = "/admin";
+      }
 
-  // Send the POST request to /bill
-  fetch('/bill', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken
-    },
-    body: JSON.stringify(billData)
-  })
-  .then(response => {
-    if (response.ok) {
-      printBill();
-      window.location.reload();
-    } else {
-      alert('Error generating bill');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('An error occurred while generating the bill.');
-  });
-}
-function logout(){
-  window.location.href = "/logout";
-}
-function admin(){
-  window.location.href = "/admin";
-}
-function report(){
-  window.location.href = "/report";
-}
-</script>
+      function report() {
+        window.location.href = "/report";
+      }
 
+      function previousBills() {
+        window.location.href = "/previous-bills";
+      }
 
-</body>
+      document.querySelectorAll(".quantity-control").forEach((control) => {
+        const input = control.querySelector(".item-quantity");
+        const incrementButton = control.querySelector(".increment");
+        const decrementButton = control.querySelector(".decrement");
+
+        incrementButton.addEventListener("click", () => {
+          input.value = parseInt(input.value) + 1;
+          updateTotal(); // Update total when quantity changes
+        });
+
+        decrementButton.addEventListener("click", () => {
+          if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+            updateTotal(); // Update total when quantity changes
+          }
+        });
+      });
+    </script>
+  </body>
 </html>

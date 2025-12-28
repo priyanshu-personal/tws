@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Previous Bills</title>
+    <style>
+      :root {
+        --primary-color: #0047ab;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --purple-color: #6f42c1;
+        --light-bg: #f8f9fa;
+        --dark-text: #343a40;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f0f2f5;
+        color: var(--dark-text);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .search-container {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      input[type="date"],
+      input[type="text"],
+      input[type="number"],
+      button,
+      select {
+        padding: 10px;
+        margin: 6px 0;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+      }
+
+      button {
+        background-color: var(--success-color);
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      .home-btn {
+        background-color: white;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 0px 40px;
+        cursor: pointer;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        margin-right: 20px;
+        height: 50px;
+      }
+
+      h2 {
+        margin-top: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        overflow-x: auto;
+        display: block;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+      }
+
+      .reprint-btn {
+        background-color: var(--purple-color);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .reprint-btn:hover {
+        background-color: #6a0dad;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 2% auto;
+        padding: 10px 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: var(--border-radius);
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .form-group {
+        margin-bottom: 5px;
+      }
+      .form-group-discount {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+      .form-group-discount label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group-discount select,
+      .form-group-discount input {
+        width: 20%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+
+      .items-container {
+        margin-bottom: 15px;
+      }
+
+      .item-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .item-name {
+        flex: 3;
+      }
+
+      .item-quantity,
+      .item-price {
+        flex: 1;
+      }
+
+      .total {
+        font-weight: bold;
+        text-align: right;
+        margin-top: 15px;
+        font-size: 18px;
+      }
+
+      .print-btn {
+        background-color: var(--primary-color);
+        margin-top: 15px;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        .container {
+          margin: 20px auto;
+          padding: 10px;
+        }
+        input[type="date"],
+        input[type="text"],
+        button {
+          padding: 8px;
+        }
+        th,
+        td {
+          font-size: 14px;
+        }
+        .modal-content {
+          width: 95%;
+          margin: 10% auto;
+        }
+      }
+
+      .h3 {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; width: 100%">
+        <h1>Previous Bills</h1>
+        <button class="home-btn" onclick="goHome()">Home</button>
+      </div>
+
+      <div class="search-container">
+        <form method="POST" style="display: flex; gap: 10px; width: 100%">
+          {% csrf_token %}
+          <input type="date" name="date_input" placeholder="Select Date" />
+          <input type="text" name="customer_name" placeholder="Customer Name" />
+          <input type="text" name="bill_id" placeholder="Bill ID" />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+
+      {% if bills %}
+      <h2>Bills</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Bill ID</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Customer Name</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bill in bills %}
+            <tr>
+              <td>{{ bill.billId }}</td>
+              <td>{{ bill.date }}</td>
+              <td>{{ bill.time }}</td>
+              <td>{{ bill.customer_name }}</td>
+              <td>Rs. {{ bill.total }}</td>
+              <td>
+                <button
+                  class="reprint-btn"
+                  onclick="reprintBill('{{ bill.billId }}', '{{ bill.customer_name }}', '{{ bill.date }}', '{{ bill.time }}', '{{ bill.total }}', '{{ bill.discount|default:0 }}', {{ bill.items|safe }})"
+                >
+                  Reprint
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %} {% if search_performed %}
+      <p>No bills found matching your search criteria.</p>
+      {% else %}
+      <p>Search for bills by date, customer name, or bill ID.</p>
+      {% endif %} {% endif %}
+    </div>
+
+    <!-- Modal for bill reprint form -->
+    <div id="reprintModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Review Bill Details</h2>
+        <form id="billForm">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="billId">Bill ID</label>
+            <input type="text" id="billId" name="billId" disabled />
+          </div>
+          <div class="form-group">
+            <label for="billDate">Date & Time</label>
+            <input type="text" id="billDate" name="billDate" disabled />
+          </div>
+          <div class="form-group">
+            <label for="customerName">Customer Name</label>
+            <input type="text" id="customerName" name="customerName" disabled />
+          </div>
+
+          <h3 class="h3">Items</h3>
+          <div class="items-container" id="itemsContainer">
+            <!-- Item rows will be added here dynamically -->
+          </div>
+
+          <div class="form-group-discount">
+            <label for="discount">Discount</label>
+            <input type="number" id="discount" name="discount" disabled />
+            <label for="payment-mode" class="payment-mode-label">Mode of Payment</label>
+            <select id="payment-mode" name="payment-mode" disabled>
+              <option value="cash">Cash</option>
+              <option value="card">Card</option>
+              <option value="upi">UPI</option>
+            </select>
+          </div>
+
+          <div class="total">Total: Rs. <span id="totalAmount">0.00</span></div>
+          <br />
+
+          <button type="button" onclick="printBillFromForm()" class="print-btn">Re-Print Bill</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function goHome() {
+        window.location.href = "/";
+      }
+
+      const modal = document.getElementById("reprintModal");
+
+      function closeModal() {
+        modal.style.display = "none";
+      }
+
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          closeModal();
+        }
+      };
+
+      function reprintBill(billId, customerName, date, time, total, discount, itemsJson) {
+        window.currentBillData = {
+          billId: billId,
+          customerName: customerName,
+          date: date,
+          time: time,
+          total: total,
+          discount: discount,
+          items: itemsJson,
+        };
+        // const utcDate = new Date(`${date}T${time}Z`); // Combine and parse as UTC
+
+        // Convert to IST (UTC+5:30)
+        // const istOffset = 5.5 * 60; // IST is UTC +5:30 in minutes
+        // const istDate = new Date(utcDate.getTime() + istOffset * 60 * 1000);
+
+        // Format the IST date and time as needed
+        // const istDateString = istDate.toLocaleDateString('en-IN'); // e.g., 31/05/2024
+        // const istTimeString = istDate.toLocaleTimeString('en-IN', { hour12: false }); // e.g., 18:45:00
+
+        // document.getElementById("billDate").value = `${istDateString} ${istTimeString}`;
+
+        document.getElementById("billId").value = billId;
+        document.getElementById("billDate").value = `${date} ${time}`;
+        document.getElementById("customerName").value = customerName;
+        document.getElementById("discount").value = discount;
+        document.getElementById("totalAmount").textContent = total;
+
+        const itemsContainer = document.getElementById("itemsContainer");
+        itemsContainer.innerHTML = "";
+
+        const items = Array.isArray(itemsJson) ? itemsJson : itemsJson.items || [];
+
+        items.forEach((item) => {
+          const itemRow = document.createElement("div");
+          itemRow.className = "item-row";
+          itemRow.innerHTML = `
+      <input type="text" class="item-name" value="${item.item_name}" disabled />
+      <input type="number" class="item-quantity" value="${item.quantity}" disabled />
+      <input type="number" class="item-price" value="${item.item_price}" disabled />
+    `;
+          itemsContainer.appendChild(itemRow);
+        });
+
+        modal.style.display = "block";
+      }
+
+      function printBillFromForm() {
+        const billData = window.currentBillData;
+        if (!billData) return;
+
+        let receiptContent = `
+<div style="font-family: monospace; font-size: 14px; padding: 10px;">
+  <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+    <h2 style="margin: 0;">CASH RECEIPT</h2>
+    <p style="margin: 5px 0;">REPRINT - Bill #${billData.billId}</p>
+  </div>
+  <div style="margin-bottom: 30px;">
+    <p style="margin: 2px 0;">Date: ${billData.date} ${billData.time}</p>
+    <p style="margin: 2px 0;">${billData.customerName}</p>
+  </div>
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr style="border-bottom: 1px dashed #000;">
+      <th style="text-align: left; padding: 2px 0;">Qty</th>
+      <th style="text-align: left; padding: 2px 0;">Item</th>
+      <th style="text-align: right; padding: 2px 0;">Price</th>
+    </tr>
+`;
+
+        let subtotal = 0;
+        const items = Array.isArray(billData.items) ? billData.items : billData.items.items || [];
+
+        for (let item of items) {
+          const itemTotal = item.quantity * item.item_price;
+          subtotal += itemTotal;
+          receiptContent += `
+    <tr>
+      <td style="padding: 2px 0;">${item.quantity}</td>
+      <td style="padding: 2px 0;">${item.item_name}</td>
+      <td style="text-align: right; padding: 2px 0;">${itemTotal.toFixed(2)}</td>
+    </tr>
+  `;
+        }
+
+        receiptContent += `
+    </table>
+    <div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px;">
+      <p style="display: flex; justify-content: space-between; margin: 2px 0;">
+        <span>Subtotal</span>
+        <span>${subtotal.toFixed(2)}</span>
+      </p>
+`;
+
+        if (billData.discount > 0) {
+          receiptContent += `
+      <p style="display: flex; justify-content: space-between; margin: 2px 0;">
+        <span>Discount</span>
+        <span>-${billData.discount.toFixed(2)}</span>
+      </p>
+  `;
+        }
+
+        receiptContent += `
+      <p style="display: flex; justify-content: space-between; margin: 2px 0; font-weight: bold;">
+        <span>Total</span>
+        <span>${billData.total}</span>
+      </p>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; padding-top: 10px;">
+      <p style="margin: 5px 0;">THANK YOU</p>
+      <p style="margin: 5px 0; font-size: 12px;">Exchange within 3 days of purchase</p>
+    </div>
+  </div>
+`;
+
+        const printWindow = window.open("", "", "width=300,height=600");
+        printWindow.document.write(`
+<html>
+  <head>
+    <title>Print Receipt</title>
+    <style>
+      @media print {
+        @page {
+          margin: 10;
+          width: 58mm;
+        }
+        body {
+          width: 58mm;
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>${receiptContent}</body>
+</html>
+`);
+
+        printWindow.document.close();
+
+        printWindow.onload = function () {
+          printWindow.focus();
+          printWindow.print();
+          closeModal();
+        };
+      }
+    </script>
+  </body>
+</html>
