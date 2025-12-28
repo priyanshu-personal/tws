@@ -11,4 +11,5 @@ urlpatterns = [
     path("report",views.report_view,name='report'),
     path('bill',views.bill,name="category"),
     path("previous-bills", views.previous_bills_combined, name="previous-bills"),
+    path("print-address", views.print_address_view, name="print-address"),
 ]

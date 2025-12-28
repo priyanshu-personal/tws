@@ -84,7 +84,6 @@ def report_view(request):
                     price = item.get('item_price', 0)
                     inventory_key = item_name + str(price)
                     Category_name = item_name.split('-')[0].strip() # Strip whitespace
-                    print(Category_name,"Category_name")
                     try:
                         category = Category.objects.get(name=Category_name)
                         account = category.account
@@ -119,7 +118,6 @@ def report_view(request):
 
         for bill in bills:
             bill.DateTime = bill.DateTime.strftime("%Y-%m-%d")
-    print("OREEEE",account_summary,"account_summary")
     context = {
         'total_bill_sum': total_bill_sum,
         'total_inventory_sum': total_inventory_sum,
@@ -247,6 +245,9 @@ def previous_bills(request):
     }
 
     return render(request, 'previous_bills.html', context)
+
+def print_address_view(request):
+    return render(request, 'print_address.html')
 
 def previous_bills_combined(request):
     bills = []

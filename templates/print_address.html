@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Print Customer Address</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 25px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 15px;
+      margin-bottom: 25px;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .print-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .print-button i {
+      margin-right: 10px;
+    }
+
+    /* PRINT STYLES — MATCHES printBill */
+    @media print {
+      @page {
+        size: 58mm auto;
+        margin: 0;
+      }
+
+      body {
+        width: 58mm;
+        margin: 0;
+        padding: 0;
+        font-family: monospace;
+        font-size: 14px;
+      }
+
+      .container,
+      .print-button {
+        display: none;
+      }
+
+      p, div {
+        margin: 0;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <button class="print-button" onclick="home()">
+      <i class="fas fa-home"></i>Home
+    </button>
+    <h1>📦 Print Customer Address</h1>
+
+    <textarea id="addressInput" placeholder="Enter customer address here..."></textarea>
+
+    <button class="print-button" onclick="printAddress()">
+      <i class="fas fa-print"></i> Print Address
+    </button>
+
+    <button
+      class="print-button"
+      style="background:#6c757d; margin-left:10px;"
+      onclick="clearAddress()"
+    >
+      <i class="fas fa-trash"></i> Clear
+    </button>
+  </div>
+
+  <script>
+    function clearAddress() {
+      const textarea = document.getElementById('addressInput');
+      textarea.value = '';
+      textarea.focus();
+    }
+    function home() {
+        window.location.href = "/";
+      }
+
+
+    function printAddress() {
+      const addressText = document.getElementById('addressInput').value;
+
+      if (!addressText.trim()) {
+        alert('Please enter an address to print.');
+        return;
+      }
+
+      const printWindow = window.open('', '', 'width=300,height=600');
+
+      printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    @media print {
+      @page {
+        size: 58mm auto;
+        margin: 0;
+      }
+      body {
+        width: 58mm;
+        margin: 0;
+        padding: 0;
+        font-family: monospace;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align: right; font-size: 12px; margin-bottom: 2px;">
+    No: ______
+  </div>
+
+  <div style="white-space: pre-wrap; line-height: 1.2; text-align: center; margin: 0; font-weight: 700;">
+    ${addressText}
+  </div>
+
+  <div style="text-align: right; font-size: 14px; margin-top: 4px; line-height: 1.2;">
+    ----------------<br>
+    From<br>
+    The Wadhwa Store<br>
+    Shahpur road field ganj, Ludhiana, 141008<br>
+    Phone: 9646567995
+  </div>
+</body>
+</html>
+`);
+
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+  </script>
+</body>
+</html>
